@@ -1,5 +1,12 @@
+-- TODO: Sometimes the private key is negative and then it doesn't work
+--       Tidy up, perhaps use own type for private and public keys 
+
 import System.Random
 import Control.Monad (replicateM)
+
+
+newtype PrivateKey = PrivateKey Integer deriving (Show)
+data PublicKey     = PublicKey Integer Integer deriving (Show)
 
 
 -- Every prime p satisfies a^(p-1) (mod p) = 1 for all a in [1,p-1]
@@ -17,7 +24,9 @@ powerMod x e m = helper x e m 1
 
 
 -- Determines wheather a number is probably a prime, using Fermat Primality Test
--- Takes the number p, which is to be checked and a list of random integers in the interval [1,p-1]
+-- Arguments:
+--   p: The number, which is to be checked 
+--   randList: A list of random integers in the interval [1,p-1]
 probablyPrime :: Integer -> [Integer] -> Bool
 probablyPrime p randList | p == 2 = True
                          | even p = False
@@ -30,8 +39,10 @@ randList :: Int -> Integer -> IO [Integer]
 randList len bound = replicateM len (randomRIO (1,bound))
 
 
--- Returns a size bit prime
--- Takes the bit size and the amount of checks for the Fermat Primality Test
+-- Returns a prime of variable bit size
+-- Arguments:
+--   checks: The amount of checks for the Fermat Primality Test 
+--   size: The bit size of the prime
 getPrime :: Int -> Integer -> IO Integer
 getPrime checks size = do
     g <- newStdGen
@@ -42,7 +53,9 @@ getPrime checks size = do
 
 
 -- Returns the p q primes for RSA 
--- Takes the bit size and the amount of checks for the Fermat Primality Test
+-- Arguments:
+--   checks: The amount of checks for the Fermat Primality Test 
+--   size: The bit size of the prime
 getRSAPrimes :: Int -> Integer -> IO (Integer, Integer)
 getRSAPrimes checks size = do
     p <- getPrime checks size
@@ -63,19 +76,25 @@ extendedEuclideanAlgorithm a b = helper (a,b) (1,0) (0,1)
             where quotient = old_r `div` r
 
 
--- Returns (Private Key, Public Key)
-generateKeyPair :: Int -> Integer -> IO (Integer, (Integer,Integer))
+
+-- Generates a private, public key pair for RSA 
+-- Arguments:
+--   checks: The amount of checks for the Fermat Primality Test 
+--   size: The bit size of the prime
+generateKeyPair :: Int -> Integer -> IO (PrivateKey, PublicKey) 
 generateKeyPair checks size = do
     (p,q) <- getRSAPrimes checks size
-    let (d,_) =  extendedEuclideanAlgorithm e (leastCommonMultiple (p-1) (q-1))
-    return (d,(e,p*q))
+    let lcm   = leastCommonMultiple (p-1) (q-1)
+    let (d,_) =  extendedEuclideanAlgorithm e lcm
+    return (PrivateKey (d `mod` lcm) , PublicKey (p*q) e)
         where e = 65537
 
 
-encrypt :: Integer -> (Integer, Integer) -> Integer
-encrypt msg (e,pub) = powerMod msg e pub
+-- Encrypts a message encoded as an inetger with an public key
+encrypt :: Integer -> PublicKey -> Integer
+encrypt msg (PublicKey pub e) = powerMod msg e pub
 
 
--- Takes two arguments, the private key and the public key
-decrypt :: Integer -> Integer -> Integer -> Integer
-decrypt = powerMod
+-- Decrypts an encrypted message
+decrypt :: Integer -> PrivateKey -> PublicKey -> Integer
+decrypt msg (PrivateKey priv) (PublicKey pub _) = powerMod msg priv pub
