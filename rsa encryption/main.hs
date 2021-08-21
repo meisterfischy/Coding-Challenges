@@ -20,10 +20,10 @@ powerMod x e m = helper x e m 1
                               | otherwise = helper x (e-1) m (result*x `mod` m)
 
 
--- Determines wheather a number is probably a prime, using Fermat Primality Test
+-- Determines whether a number is probably a prime, using Fermat Primality Test
 -- Arguments:
 --   p: The number, which is to be checked 
---   randList: A list of random integers in the interval [1,p-1]
+--   randList: A list of random integers in the range [1,p-1]
 probablyPrime :: Integer -> [Integer] -> Bool
 probablyPrime p randList | p == 2 = True
                          | even p = False
@@ -31,7 +31,7 @@ probablyPrime p randList | p == 2 = True
                          | otherwise = all (\x -> powerMod x (p-1) p == 1) randList
 
 
--- Returns a list of random values in the interval [1,bound]
+-- Returns a list of random values in the range [1,bound]
 randList :: Int -> Integer -> IO [Integer]
 randList len bound = replicateM len (randomRIO (1,bound))
 
@@ -64,7 +64,7 @@ leastCommonMultiple :: Integer -> Integer -> Integer
 leastCommonMultiple a b = abs (a*b) `div` gcd a b
 
 
--- Takes two integers a b and computes the coeffcients s.t. ax+bx=gcd(a,b)
+-- Takes two integers a b and computes the coefficients s.t. ax+bx=gcd(a,b)
 extendedEuclideanAlgorithm :: Integer -> Integer -> (Integer,Integer)
 extendedEuclideanAlgorithm a b = helper (a,b) (1,0) (0,1)
     where helper (old_r, r) (old_s, s) (old_t, t)
@@ -87,7 +87,7 @@ generateKeyPair checks size = do
         where e = 65537
 
 
--- Encrypts a message encoded as an integer with an public key
+-- Encrypts a message encoded as an integer with a public key
 -- Arguments:
 --   msg: Message to be encrypted, has to be smaller than the pub key and positive 
 encrypt :: Integer -> PublicKey -> Integer
