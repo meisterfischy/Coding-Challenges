@@ -1,6 +1,3 @@
--- TODO: Sometimes the private key is negative and then it doesn't work
---       Tidy up, perhaps use own type for private and public keys 
-
 import System.Random
 import Control.Monad (replicateM)
 
