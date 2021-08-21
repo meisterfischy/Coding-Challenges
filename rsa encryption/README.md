@@ -1,4 +1,4 @@
-#### RSA encryption
+# RSA encryption
 
 RSA encryption module written in Haskell 
 
