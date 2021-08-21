@@ -78,7 +78,7 @@ extendedEuclideanAlgorithm a b = helper (a,b) (1,0) (0,1)
 -- Arguments:
 --   checks: The amount of checks for the Fermat Primality Test 
 --   size: The bit size of the prime
-generateKeyPair :: Int -> Integer -> IO (PrivateKey, PublicKey) 
+generateKeyPair :: Int -> Integer -> IO (PrivateKey, PublicKey)
 generateKeyPair checks size = do
     (p,q) <- getRSAPrimes checks size
     let lcm   = leastCommonMultiple (p-1) (q-1)
@@ -87,7 +87,8 @@ generateKeyPair checks size = do
         where e = 65537
 
 
--- Encrypts a message encoded as an inetger with an public key
+-- Encrypts a message encoded as an integer with an public key
+-- msg: Message to be encrypted, has to be smaller than the pub key and positive 
 encrypt :: Integer -> PublicKey -> Integer
 encrypt msg (PublicKey pub e) = powerMod msg e pub
 
