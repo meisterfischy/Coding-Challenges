@@ -1,9 +1,24 @@
+module RSAEncryption (generateKeyPair, encrypt, decrypt, privateKey, publicKey, returnE) where 
+
+
 import System.Random
 import Control.Monad (replicateM)
 
 
 newtype PrivateKey = PrivateKey Integer deriving (Show)
-data PublicKey     = PublicKey Integer Integer deriving (Show)
+data PublicKey     = PublicKey Integer Integer deriving (Show) -- first argument: public key, second argument: value e 
+
+
+privateKey :: PrivateKey -> Integer 
+privateKey (PrivateKey key) = key
+
+
+publicKey :: PublicKey -> Integer 
+publicKey (PublicKey key _) = key
+
+
+returnE :: PublicKey -> Integer 
+returnE (PublicKey _ e) = e
 
 
 -- Every prime p satisfies a^(p-1) (mod p) = 1 for all a in [1,p-1]
