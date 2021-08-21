@@ -88,7 +88,8 @@ generateKeyPair checks size = do
 
 
 -- Encrypts a message encoded as an integer with an public key
--- msg: Message to be encrypted, has to be smaller than the pub key and positive 
+-- Arguments:
+--   msg: Message to be encrypted, has to be smaller than the pub key and positive 
 encrypt :: Integer -> PublicKey -> Integer
 encrypt msg (PublicKey pub e) = powerMod msg e pub
 
