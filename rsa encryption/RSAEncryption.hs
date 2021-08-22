@@ -64,17 +64,6 @@ getPrime checks size = do
     return $ head p
 
 
--- Returns the p q primes for RSA 
--- Arguments:
---   checks: The amount of checks for the Fermat Primality Test 
---   size: The bit size of the prime
-getRSAPrimes :: Int -> Integer -> IO (Integer, Integer)
-getRSAPrimes checks size = do
-    p <- getPrime checks size
-    q <- getPrime checks size
-    return (p,q)
-
-
 leastCommonMultiple :: Integer -> Integer -> Integer
 leastCommonMultiple a b = abs (a*b) `div` gcd a b
 
@@ -88,14 +77,13 @@ extendedEuclideanAlgorithm a b = helper (a,b) (1,0) (0,1)
             where quotient = old_r `div` r
 
 
-
 -- Generates a private, public key pair for RSA 
 -- Arguments:
 --   checks: The amount of checks for the Fermat Primality Test 
 --   size: The bit size of the prime
 generateKeyPair :: Int -> Integer -> IO (PrivateKey, PublicKey)
 generateKeyPair checks size = do
-    (p,q) <- getRSAPrimes checks size
+    [p,q] <- replicateM 2 (getPrime checks size)
     let lcm   = leastCommonMultiple (p-1) (q-1)
     let (d,_) =  extendedEuclideanAlgorithm e lcm
     return (PrivateKey (d `mod` lcm) , PublicKey (p*q) e)
